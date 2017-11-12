@@ -12,7 +12,11 @@ type SimpleTrie struct {
 	word bool
 }
 
+// Insert tries to insert the key-value pair inside the tree.
+// If ok, returns a new Tree with the key-value pair inside of it.
+// If not ok, it means that the key is already in the tree.
 func (n SimpleTrie) Insert(key string, data interface{}) (Tree, bool) {
+	// N.B. Insert is always called on the root of the tree
 	if n.isUninit() {
 		return SimpleTrie{key: key, data: data, word: true}, true
 	}
@@ -68,18 +72,9 @@ func (n SimpleTrie) blindInsert(prefix, k1, k2 string, data interface{}) (Simple
 	return SimpleTrie{key: prefix, sons: []SimpleTrie{n1, n2}}, true
 }
 
-func (n SimpleTrie) String() string {
-	if n.isLeaf() {
-		return fmt.Sprintf("\"%s\" -> data: %v", n.key, n.data)
-	}
-	var ss []string
-	for _, s := range n.sons {
-		ss = append(ss, s.String())
-	}
-	return fmt.Sprintf("\"%s\": [%s]", n.key, strings.Join(ss, ","))
-}
-
+// Words return the list of words contained inside the tree.
 func (n SimpleTrie) Words() []string { return n.words("") }
+
 func (n SimpleTrie) words(prefix string) (res []string) {
 	prefix = fmt.Sprintf("%s%s", prefix, n.key)
 	if n.word {
@@ -91,4 +86,16 @@ func (n SimpleTrie) words(prefix string) (res []string) {
 		}
 	}
 	return
+}
+
+// String returns a string'd representation of the tree.
+func (n SimpleTrie) String() string {
+	if n.isLeaf() {
+		return fmt.Sprintf("\"%s\" -> data: %v", n.key, n.data)
+	}
+	var ss []string
+	for _, s := range n.sons {
+		ss = append(ss, s.String())
+	}
+	return fmt.Sprintf("\"%s\": [%s]", n.key, strings.Join(ss, ","))
 }
