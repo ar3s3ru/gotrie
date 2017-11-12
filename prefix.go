@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+// CommonPrefixTree is an implementation of a Trie that uses common prefixes
+// as key nodes.
+//
+// While simple tries use single char keys, CommonPrefixTree uses strings.
+// Thus, the height of the Tree is much more compact compared to a simple trie.
 type CommonPrefixTree struct {
 	root *commonPrefixNode
 	size uint
@@ -34,8 +39,33 @@ func (t *CommonPrefixTree) Insert(key string, data interface{}) (Tree, bool) {
 	return t, ok
 }
 
-func (t *CommonPrefixTree) Update(key string, data interface{}) (Tree, bool) { panic("not implemented") }
-func (t *CommonPrefixTree) Delete(key string) (interface{}, Tree, bool)      { panic("not implemented") }
+// Update updates the specified key with the provided meta data.
+// If ok, returns the updated Tree and a true "ok" flag;
+// if "ok" flag is false, meand that the key has not been found, thus no update happened.
+func (t *CommonPrefixTree) Update(key string, data interface{}) (Tree, bool) {
+	if t.isUninit() {
+		return t, false
+	}
+	n, ok := t.root.update(key, data)
+	if ok {
+		t.root = n
+	}
+	return t, ok
+}
+
+// Delete deletes the key in the Tree.
+// If the "ok" flag is true, the deleted key meta data and modified Tree will be returned.
+// Otherwise, it means that the key has not been found.
+func (t *CommonPrefixTree) Delete(key string) (interface{}, Tree, bool) {
+	if t.isUninit() {
+		return nil, t, false
+	}
+	data, n, ok := t.root.delete(key)
+	if ok {
+		t.root = n
+	}
+	return data, t, ok
+}
 
 // Keys return the list of words contained inside the tree.
 func (t *CommonPrefixTree) Keys() (keys []string) {
@@ -99,9 +129,13 @@ func (n *commonPrefixNode) insert(key string, data interface{}) (*commonPrefixNo
 	}
 }
 
-func (n *commonPrefixNode) Update(key string, data interface{}) (Tree, bool) { panic("not implemented") }
+func (n *commonPrefixNode) update(key string, data interface{}) (*commonPrefixNode, bool) {
+	panic("not implemented")
+}
 
-func (n *commonPrefixNode) Delete(key string) (interface{}, Tree, bool) { panic("not implemented") }
+func (n *commonPrefixNode) delete(key string) (interface{}, *commonPrefixNode, bool) {
+	panic("not implemented")
+}
 
 func (n *commonPrefixNode) get(key string) (interface{}, bool) {
 	_, k1, k2 := lcs(n.key, key)
