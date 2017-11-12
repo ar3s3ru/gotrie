@@ -15,24 +15,38 @@ func TestCommonPrefixTree_Insert(t *testing.T) {
 		repr string
 	}{
 		{
-			name: "Simple test with 3 similar keys",
-			keys: []string{"amore", "amare", "amici"},
-			repr: `"am": ["ore" -> data: <nil>,"are" -> data: <nil>,"ici" -> data: <nil>]`,
+			name: "No key",
+			repr: `<uninit>`,
 		},
 		{
-			name: "2 loosely similar keys and 1 totally different",
-			keys: []string{"amore", "insieme", "a te"},
-			repr: `"": ["a": ["more" -> data: <nil>," te" -> data: <nil>],"insieme" -> data: <nil>]`,
-		},
-		{
-			name: "2 loosely similar keys and 2 totally different",
-			keys: []string{"amore", "insieme", "a", "te"},
-			repr: `"": ["a": ["more" -> data: <nil>],"insieme" -> data: <nil>,"te" -> data: <nil>]`,
+			name: "One key",
+			keys: []string{"key"},
+			repr: `"key" -> data: <nil>`,
 		},
 		{
 			name: "Same keys",
-			keys: []string{"hello"},
+			keys: []string{"hello", "hello"},
 			repr: `"hello" -> data: <nil>`,
+		},
+		{
+			name: "Simple test with 3 similar keys",
+			keys: []string{"love", "live", "friends"},
+			repr: `"": ["l": ["ove" -> data: <nil>,"ive" -> data: <nil>],"friends" -> data: <nil>]`,
+		},
+		{
+			name: "2 likely similar keys and 1 totally different",
+			keys: []string{"love", "and", "live together"},
+			repr: `"": ["l": ["ove" -> data: <nil>,"ive together" -> data: <nil>],"and" -> data: <nil>]`,
+		},
+		{
+			name: "2 likey similar keys and 2 totally different",
+			keys: []string{"love", "and", "live", "together"},
+			repr: `"": ["l": ["ove" -> data: <nil>,"ive" -> data: <nil>],"and" -> data: <nil>,"together" -> data: <nil>]`,
+		},
+		{
+			name: "a couple of 2 likely similar keys",
+			keys: []string{"love", "and", "live", "alone"},
+			repr: `"": ["l": ["ove" -> data: <nil>,"ive" -> data: <nil>],"a": ["nd" -> data: <nil>,"lone" -> data: <nil>]]`,
 		},
 	}
 
@@ -55,19 +69,33 @@ func TestCommonPrefixTree_Words(t *testing.T) {
 	testcases := []struct {
 		name string
 		keys []string
-		repr string
 	}{
 		{
+			name: "No key",
+		},
+		{
+			name: "One key",
+			keys: []string{"key"},
+		},
+		{
+			name: "Same keys",
+			keys: []string{"hello"},
+		},
+		{
 			name: "Simple test with 3 similar keys",
-			keys: []string{"amore", "amare", "amici"},
+			keys: []string{"love", "live", "friends"},
 		},
 		{
-			name: "2 loosely similar keys and 1 totally different",
-			keys: []string{"amore", "insieme", "a te"},
+			name: "2 likely similar keys and 1 totally different",
+			keys: []string{"love", "and", "live together"},
 		},
 		{
-			name: "2 loosely similar keys and 2 totally different",
-			keys: []string{"amore", "insieme", "a", "te"},
+			name: "2 likey similar keys and 2 totally different",
+			keys: []string{"love", "and", "live", "together"},
+		},
+		{
+			name: "a couple of 2 likely similar keys",
+			keys: []string{"love", "and", "live", "alone"},
 		},
 	}
 
@@ -100,17 +128,21 @@ func TestCommonPrefixTree_Get(t *testing.T) {
 		results []result
 	}{
 		{
+			name:    "Query at an empty tree",
+			results: []result{{key: "test", ok: false}},
+		},
+		{
 			name:    "Simple test with 3 similar keys",
 			keys:    []string{"amore", "amare", "amici"},
 			results: []result{{key: "amore", ok: true}, {key: "amori", ok: false}, {key: "a", ok: false}},
 		},
 		{
-			name:    "2 loosely similar keys and 1 totally different",
+			name:    "2 likely similar keys and 1 totally different",
 			keys:    []string{"amore", "insieme", "a te"},
 			results: []result{{key: "a te", ok: true}, {key: "amori", ok: false}, {key: "ins", ok: false}},
 		},
 		{
-			name:    "2 loosely similar keys and 2 totally different",
+			name:    "2 likely similar keys and 2 totally different",
 			keys:    []string{"amore", "insieme", "a", "te"},
 			results: []result{{key: "insieme", ok: true}, {key: "amori", ok: false}},
 		},

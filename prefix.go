@@ -10,7 +10,7 @@ type CommonPrefixTree struct {
 	size uint
 }
 
-func (t *CommonPrefixTree) isUninit() bool   { return t.root == nil }
+func (t *CommonPrefixTree) isUninit() bool   { return t == nil || t.root == nil }
 func (t *CommonPrefixTree) isLeaf() bool     { return !t.isUninit() && t.root.isLeaf() }
 func (t *CommonPrefixTree) isWildcard() bool { return !t.isUninit() && t.root.isWildcard() }
 
