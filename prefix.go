@@ -49,19 +49,9 @@ func (t *CommonPrefixTree) Keys() (keys []string) {
 // The bool flag indicates if the key has been found.
 func (t *CommonPrefixTree) Get(key string) (interface{}, bool) {
 	if t.isUninit() {
-		goto fail
+		return nil, false
 	}
-	if !t.isWildcard() {
-		i, ok, word := t.root.get(key)
-		return i, ok && word
-	}
-	for _, s := range t.root.sons {
-		if i, ok, word := s.get(key); ok {
-			return i, ok && word
-		}
-	}
-fail:
-	return nil, false
+	return t.root.get(key)
 }
 
 func (t *CommonPrefixTree) String() string {
@@ -113,24 +103,21 @@ func (n *commonPrefixNode) Update(key string, data interface{}) (Tree, bool) { p
 
 func (n *commonPrefixNode) Delete(key string) (interface{}, Tree, bool) { panic("not implemented") }
 
-func (n *commonPrefixNode) get(key string) (interface{}, bool, bool) {
-	prefix, k1, k2 := lcs(n.key, key)
-	if prefix == "" {
-		goto fail
-	}
-	if k2 == "" && k1 == "" {
-		return n.data, true, n.word
-	}
-	if k1 != "" {
-		goto fail
-	}
-	for _, s := range n.sons {
-		if i, ok, word := s.get(k2); ok {
-			return i, ok, word
+func (n *commonPrefixNode) get(key string) (interface{}, bool) {
+	_, k1, k2 := lcs(n.key, key)
+	switch {
+	case k1 == "" && k2 == "": // Found if n is a word
+		return n.data, n.word
+	case k1 == "" && k2 != "": // Search through sons
+		for _, s := range n.sons {
+			if prefix, _, _ := lcs(s.key, k2); prefix != "" {
+				return s.get(k2)
+			}
 		}
+		fallthrough
+	default:
+		return nil, false
 	}
-fail:
-	return nil, false, false
 }
 
 func (n *commonPrefixNode) keys(prefix string) (res []string) {

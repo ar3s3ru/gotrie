@@ -29,6 +29,11 @@ func TestCommonPrefixTree_Insert(t *testing.T) {
 			keys: []string{"amore", "insieme", "a", "te"},
 			repr: `"": ["a": ["more" -> data: <nil>],"insieme" -> data: <nil>,"te" -> data: <nil>]`,
 		},
+		{
+			name: "Same keys",
+			keys: []string{"hello"},
+			repr: `"hello" -> data: <nil>`,
+		},
 	}
 
 	for _, test := range testcases {
