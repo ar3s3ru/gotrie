@@ -12,6 +12,10 @@ type SimpleTrie struct {
 	word bool
 }
 
+func (n SimpleTrie) isUninit() bool   { return n.key == "" && n.data == nil && n.sons == nil }
+func (n SimpleTrie) isLeaf() bool     { return n.key != "" && n.sons == nil }
+func (n SimpleTrie) isWildcard() bool { return n.key == "" && n.sons != nil }
+
 // Insert tries to insert the key-value pair inside the tree.
 // If ok, returns a new Tree with the key-value pair inside of it.
 // If not ok, it means that the key is already in the tree.
@@ -34,16 +38,6 @@ func (n SimpleTrie) Insert(key string, data interface{}) (Tree, bool) {
 	prefix, k1, k2 := lcs(n.key, key)
 	return n.blindInsert(prefix, k1, k2, data)
 }
-
-func (n SimpleTrie) Update(key string, data interface{}) (Tree, bool) { panic("not implemented") }
-
-func (n SimpleTrie) Delete(key string) (interface{}, Tree, bool) { panic("not implemented") }
-
-func (n SimpleTrie) Query(key string) (interface{}, bool) { panic("not implemented") }
-
-func (n SimpleTrie) isUninit() bool   { return n.key == "" && n.data == nil && n.sons == nil }
-func (n SimpleTrie) isLeaf() bool     { return n.key != "" && n.sons == nil }
-func (n SimpleTrie) isWildcard() bool { return n.key == "" && n.sons != nil }
 
 func (n SimpleTrie) blindInsert(prefix, k1, k2 string, data interface{}) (SimpleTrie, bool) {
 	if k1 == "" {
@@ -70,6 +64,47 @@ func (n SimpleTrie) blindInsert(prefix, k1, k2 string, data interface{}) (Simple
 	}
 	n2 := SimpleTrie{key: k2, data: data, word: true}
 	return SimpleTrie{key: prefix, sons: []SimpleTrie{n1, n2}}, true
+}
+
+func (n SimpleTrie) Update(key string, data interface{}) (Tree, bool) { panic("not implemented") }
+
+func (n SimpleTrie) Delete(key string) (interface{}, Tree, bool) { panic("not implemented") }
+
+func (n SimpleTrie) Query(key string) (interface{}, bool) {
+	if n.isUninit() {
+		goto fail
+	}
+	if !n.isWildcard() {
+		i, ok, word := n.search(key)
+		return i, ok && word
+	}
+	for _, s := range n.sons {
+		if i, ok, word := s.search(key); ok {
+			return i, ok && word
+		}
+	}
+fail:
+	return nil, false
+}
+
+func (n SimpleTrie) search(key string) (interface{}, bool, bool) {
+	prefix, k1, k2 := lcs(n.key, key)
+	if prefix == "" {
+		goto fail
+	}
+	if k2 == "" && k1 == "" {
+		return n.data, true, n.word
+	}
+	if k1 != "" {
+		goto fail
+	}
+	for _, s := range n.sons {
+		if i, ok, word := s.search(k2); ok {
+			return i, ok, word
+		}
+	}
+fail:
+	return nil, false, false
 }
 
 // Words return the list of words contained inside the tree.

@@ -46,6 +46,51 @@ func TestSimpleTrie_Insert(t *testing.T) {
 	}
 }
 
+func TestSimpleTrie_Query(t *testing.T) {
+	type result struct {
+		key string
+		ok  bool
+	}
+	testcases := []struct {
+		name    string
+		keys    []string
+		results []result
+	}{
+		{
+			name:    "Simple test with 3 similar keys",
+			keys:    []string{"amore", "amare", "amici"},
+			results: []result{{key: "amore", ok: true}, {key: "amori", ok: false}, {key: "a", ok: false}},
+		},
+		{
+			name:    "2 loosely similar keys and 1 totally different",
+			keys:    []string{"amore", "insieme", "a te"},
+			results: []result{{key: "a te", ok: true}, {key: "amori", ok: false}, {key: "ins", ok: false}},
+		},
+		{
+			name:    "2 loosely similar keys and 2 totally different",
+			keys:    []string{"amore", "insieme", "a", "te"},
+			results: []result{{key: "insieme", ok: true}, {key: "amori", ok: false}},
+		},
+	}
+
+	for _, test := range testcases {
+		t.Run(test.name, func(t *testing.T) {
+			var tt gotrie.SimpleTrie
+			for _, s := range test.keys {
+				nt, ok := tt.Insert(s, nil)
+				if !assert.True(t, ok, "not ok") {
+					break
+				}
+				tt = nt.(gotrie.SimpleTrie)
+			}
+			for _, r := range test.results {
+				_, ok := tt.Query(r.key)
+				assert.Equal(t, r.ok, ok, "value check mismatch")
+			}
+		})
+	}
+}
+
 func TestSimpleTrie_Words(t *testing.T) {
 	testcases := []struct {
 		name string
