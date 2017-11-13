@@ -10,8 +10,12 @@ import (
 //
 // Use key = "" and data = nil to create an empty tree.
 func NewCommonPrefixTree(key string, data interface{}) *CommonPrefixTree {
-	v, _ := (*CommonPrefixTree)(nil).Insert(key, data)
-	return v.(*CommonPrefixTree)
+	v := &CommonPrefixTree{}
+	if key == "" && data == nil {
+		return v
+	}
+	v1, _ := v.Insert(key, data)
+	return v1.(*CommonPrefixTree)
 }
 
 // CommonPrefixTree is an implementation of a Trie that uses common prefixes
@@ -114,8 +118,9 @@ func (n *commonPrefixNode) insert(key string, data interface{}) (*commonPrefixNo
 	prefix, k1, k2 := lcs(n.key, key)
 	switch {
 	case k1 == "" && k2 == "": // Same object
-		n.word = true
-		return n, false
+		var ok bool
+		ok, n.word = n.word, true
+		return n, ok
 	case k1 == "" && k2 != "": // Insert between sons
 		for i, s := range n.sons {
 			if prefix, _, _ := lcs(s.key, k2); prefix != "" {
