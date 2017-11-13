@@ -5,6 +5,15 @@ import (
 	"strings"
 )
 
+// NewCommonPrefixTree creates a new CommonPrefixTree with the initial root
+// as key-value passed as arguments.
+//
+// Use key = "" and data = nil to create an empty tree.
+func NewCommonPrefixTree(key string, data interface{}) *CommonPrefixTree {
+	v, _ := (*CommonPrefixTree)(nil).Insert(key, data)
+	return v.(*CommonPrefixTree)
+}
+
 // CommonPrefixTree is an implementation of a Trie that uses common prefixes
 // as key nodes.
 //

@@ -8,6 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewCommonPrefixTree(t *testing.T) {
+	tr := gotrie.NewCommonPrefixTree("hello", "world")
+	assert.NotNil(t, tr, "nil created tree")
+	v, ok := tr.Get("hello")
+	assert.True(t, ok, "not found with Get()")
+	assert.Equal(t, "world", v, "meta data mismatch")
+}
+
 func TestCommonPrefixTree_Insert(t *testing.T) {
 	testcases := []struct {
 		name string
@@ -54,10 +62,7 @@ func TestCommonPrefixTree_Insert(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			var tt *gotrie.CommonPrefixTree
 			for _, s := range test.keys {
-				nt, ok := tt.Insert(s, nil)
-				if !assert.True(t, ok, "not ok") {
-					break
-				}
+				nt, _ := tt.Insert(s, nil)
 				tt = nt.(*gotrie.CommonPrefixTree)
 			}
 			assert.Equal(t, test.repr, tt.String(), "result mismatch")
