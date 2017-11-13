@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ar3s3ru/gotrie"
+
 	"github.com/stretchr/testify/assert"
 )
 
