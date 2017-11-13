@@ -28,3 +28,17 @@ func BenchmarkDerekParkerTrie_InsertAll(b *testing.B) {
 		}
 	})
 }
+
+func BenchmarkDerekParkerTrie_Get(b *testing.B) {
+	tt := trie.New()
+	for _, w := range words {
+		node := tt.Add(w, nil)
+		assert.NotNil(b, node, "insertion failed [%s]: node: %v", w, node)
+	}
+	b.Run("Query terms", func(b *testing.B) {
+		for _, w := range words {
+			_, ok := tt.Find(w)
+			assert.True(b, ok, "not found: %s", w)
+		}
+	})
+}
